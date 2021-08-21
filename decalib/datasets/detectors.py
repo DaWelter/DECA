@@ -49,12 +49,12 @@ class MTCNN(object):
         image: 0-255, uint8, rgb, [h, w, 3]
         return: detected box
         '''
-        out = self.model.detect(input[None,...])
-        if out[0][0] is None:
-            return [0]
+        boxes, probs, landmarks = self.model.detect(input, landmarks=True)
+        boxes, _, _ = self.model.select_boxes(boxes, probs, landmarks, input)
+        if boxes is None or boxes[0] is None:
+            return [0], 'bbox'
         else:
-            bbox = out[0][0].squeeze()
-            return bbox, 'bbox'
+            return boxes[0], 'bbox'
 
 
 
