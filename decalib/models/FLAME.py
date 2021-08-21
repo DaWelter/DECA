@@ -181,6 +181,7 @@ class FLAME(nn.Module):
             return:d
                 vertices: N X V X 3
                 landmarks: N X number of landmarks X 3
+                joint positions N X number of joints X 3
         """
         batch_size = shape_params.shape[0]
         if pose_params is None:
@@ -191,10 +192,11 @@ class FLAME(nn.Module):
         full_pose = torch.cat([pose_params[:, :3], self.neck_pose.expand(batch_size, -1), pose_params[:, 3:], eye_pose_params], dim=1)
         template_vertices = self.v_template.unsqueeze(0).expand(batch_size, -1, -1)
 
-        vertices, _ = lbs(betas, full_pose, template_vertices,
-                          self.shapedirs, self.posedirs,
-                          self.J_regressor, self.parents,
-                          self.lbs_weights, dtype=self.dtype)
+        vertices, joint_positions = lbs(
+                        betas, full_pose, template_vertices,
+                        self.shapedirs, self.posedirs,
+                        self.J_regressor, self.parents,
+                        self.lbs_weights, dtype=self.dtype)
 
         lmk_faces_idx = self.lmk_faces_idx.unsqueeze(dim=0).expand(batch_size, -1)
         lmk_bary_coords = self.lmk_bary_coords.unsqueeze(dim=0).expand(batch_size, -1, -1)
@@ -213,7 +215,7 @@ class FLAME(nn.Module):
         landmarks3d = vertices2landmarks(vertices, self.faces_tensor,
                                        self.full_lmk_faces_idx.repeat(bz, 1),
                                        self.full_lmk_bary_coords.repeat(bz, 1, 1))
-        return vertices, landmarks2d, landmarks3d
+        return vertices, landmarks2d, landmarks3d, joint_positions
 
 class FLAMETex(nn.Module):
     """

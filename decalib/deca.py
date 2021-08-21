@@ -159,7 +159,7 @@ class DECA(nn.Module):
         batch_size = images.shape[0]
         
         ## decode
-        verts, landmarks2d, landmarks3d = self.flame(shape_params=codedict['shape'], expression_params=codedict['exp'], pose_params=codedict['pose'])
+        verts, landmarks2d, landmarks3d, joint_positions = self.flame(shape_params=codedict['shape'], expression_params=codedict['exp'], pose_params=codedict['pose'])
         if self.cfg.model.use_tex:
             albedo = self.flametex(codedict['tex'])
         else:
@@ -170,12 +170,14 @@ class DECA(nn.Module):
         landmarks2d = util.batch_orth_proj(landmarks2d, codedict['cam'])[:,:,:2]; landmarks2d[:,:,1:] = -landmarks2d[:,:,1:]#; landmarks2d = landmarks2d*self.image_size/2 + self.image_size/2
         landmarks3d = util.batch_orth_proj(landmarks3d, codedict['cam']); landmarks3d[:,:,1:] = -landmarks3d[:,:,1:] #; landmarks3d = landmarks3d*self.image_size/2 + self.image_size/2
         trans_verts = util.batch_orth_proj(verts, codedict['cam']); trans_verts[:,:,1:] = -trans_verts[:,:,1:]
+        joint_positions = util.batch_orth_proj(joint_positions, codedict['cam']); joint_positions[:,:,1:] = -joint_positions[:,:,1:]
         opdict = {
             'verts': verts,
             'trans_verts': trans_verts,
             'landmarks2d': landmarks2d,
             'landmarks3d': landmarks3d,
             'landmarks3d_world': landmarks3d_world,
+            'joint_positions' : joint_positions
         }
         ## rendering
         if rendering:
