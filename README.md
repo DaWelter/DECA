@@ -1,5 +1,23 @@
 # DECA: Detailed Expression Capture and Animation
 
+My fork adds a script to run DECA over a list of image files and save the
+code dict to an hdf5 file. I also added a script to display the contents
+of the generated file.
+
+There is an example of the file's group structure.
+![Doc/images/decafit.hdf5.png](Doc/images/decafit.hdf5.png)
+
+Some files may be excluded because there are some filters to weed out small
+images. Those are listed in `excluded`.
+
+The crop parameters, center and size, are stored in `crop`. All the DECA
+parameters are relative to the crop window, as they drop out of the neural net.
+
+I furthermore store the joint positions, a bounding box encompassing the
+entire head, the bounding box of the face detector, as well as the landmarks.
+
+----------------------------------------------------------
+
 <p align="center"> 
 <img src="TestSamples/teaser/results/teaser.gif">
 </p>
