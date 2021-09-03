@@ -19,14 +19,25 @@ import torch
 class FAN(object):
     def __init__(self):
         import face_alignment
-        self.model = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False)
+        self.fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, device='cuda')
+        self.fa_cpu = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, device='cpu')
 
     def run(self, image):
         '''
         image: 0-255, uint8, rgb, [h, w, 3]
         return: detected box list
         '''
-        out = self.model.get_landmarks(image)
+        assert isinstance(image, np.ndarray)
+        try:
+            lms, _, boxes = self.fa.get_landmarks_from_image(image, return_bboxes=True)
+        except Exception as e:
+            print (f'GPU face detection failed with error: {str(e)}')
+            try:
+                lms, _, boxes = self.fa_cpu.get_landmarks_from_image(image, return_bboxes=True)
+            except Exception as e:
+                print (f'CPU face detection fallback also failed with error: {str(e)}')
+                lms, boxes = None, None
+        out = lms
         if out is None:
             return [0], 'kpt68'
         else:

@@ -57,9 +57,7 @@ def crop_policy_bbox_scale(image, bbox, bbox_type):
     if old_size < 64:
         return None, None, None
 
-    # Note: scale coefficient increased from 1.25 to 1.4 because smaller value
-    # resulted in a bad fit which should have worked no prob.
-    size = int(old_size*1.4)
+    size = int(old_size*1.25)
     src_pts = np.array([
         [center[0]-size/2, center[1]-size/2], 
         [center[0]-size/2, center[1]+size/2], 
@@ -221,7 +219,7 @@ def main():
 
     device = args.device
 
-    face_detector = detectors.MTCNN()
+    face_detector = detectors.FAN()
     deca_cfg.model.use_tex = False
     deca = DECA(config = deca_cfg, device=device)
 
